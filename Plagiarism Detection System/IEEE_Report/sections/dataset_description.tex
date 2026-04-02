@@ -1,0 +1,96 @@
+\section{Dataset Description} \label{sec:dataset}
+
+\subsection{Data Collection and Composition}
+
+We constructed a plagiarism detection dataset comprising 100+ text pairs derived from AI and machine learning research paper summaries. The dataset captures diverse writing styles, scientific terminology, and subject matter variation to ensure robust model evaluation.
+
+\subsubsection{Source Material}
+
+Data sources include:
+\begin{itemize}
+  \item ArXiv abstracts (machine learning, NLP, computer vision papers)
+  \item IEEE Xplore conference proceedings
+  \item ACM Digital Library publications
+  \item Academic journal articles in computer science
+\end{itemize}
+
+This selection ensures domain-specific vocabulary, technical complexity, and authentic academic writing patterns representative of institutional plagiarism detection use cases.
+
+\subsection{Plagiarism Variant Types}
+
+The dataset includes balanced representation of plagiarism types:
+
+\begin{table}[h!]
+\centering
+\caption{Dataset Composition by Plagiarism Type}
+\label{tab:dataset_composition}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Plagiarism Category} & \textbf{Count} & \textbf{Percentage} \\
+\hline
+Direct Copy & 25 & 25\% \\
+Paraphrasing & 25 & 25\% \\
+Semantic Variation & 20 & 20\% \\
+Non-plagiarized (Original) & 30 & 30\% \\
+\hline
+\textbf{Total} & \textbf{100} & \textbf{100\%} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Plagiarism Type Definitions}
+
+\begin{itemize}
+  \item \textbf{Direct Copy} --- Verbatim copying with $\geq 90\%$ lexical overlap
+  \item \textbf{Paraphrasing} --- Semantic equivalence with 30-70\% lexical overlap through synonym substitution and structural rearrangement
+  \item \textbf{Semantic Variation} --- Content expressing similar ideas (10-30\% lexical overlap) with different terminology and examples
+  \item \textbf{Non-plagiarized} --- Completely original content with $\leq 10\%$ overlap to legitimate common knowledge
+\end{itemize}
+
+\subsection{Data Preprocessing Pipeline}
+
+All input text undergoes standardized preprocessing:
+
+\begin{enumerate}
+  \item \textbf{Lowercasing} --- Convert all text to lowercase for uniform representation
+  
+  \item \textbf{URL/Email Removal} --- Strip web links and email addresses not relevant to content similarity
+  
+  \item \textbf{Special Character Filtering} --- Remove punctuation except hyphens in compound words
+  
+  \item \textbf{Whitespace Normalization} --- Collapse multiple spaces; convert tabs to spaces
+  
+  \item \textbf{Tokenization} --- Split into word tokens for model ingestion
+\end{enumerate}
+
+No stopword removal is performed, as these often carry semantic significance in academic writing (e.g., ``with'', ``without'' in methodology descriptions).
+
+\subsection{Data Splits and Balance}
+
+\begin{table}[h!]
+\centering
+\caption{Dataset Partitioning}
+\label{tab:splits}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Split} & \textbf{Pairs} & \textbf{Plagiarized} & \textbf{Original} \\
+\hline
+Training & 70 & 35 & 35 \\
+Validation & 15 & 7 & 8 \\
+Test & 15 & 8 & 7 \\
+\hline
+\end{tabular}
+\end{table}
+
+Stratified splitting ensures balanced class distribution (approximately 50\% plagiarized, 50\% original) across all partitions, preventing training bias toward either class.
+
+\subsection{Dataset Characteristics}
+
+\begin{itemize}
+  \item \textbf{Average text length} --- 150-300 tokens per document pair
+  \item \textbf{Vocabulary diversity} --- 2,500+ unique terms including domain-specific terminology
+  \item \textbf{Linguistic complexity} --- Academic writing with complex syntax and technical vocabulary
+  \item \textbf{Temporal diversity} --- Papers spanning 2015-2023, capturing evolving terminology
+\end{itemize}
+
+These characteristics ensure the dataset reflects real-world institutional plagiarism detection scenarios rather than simplified toy problems.

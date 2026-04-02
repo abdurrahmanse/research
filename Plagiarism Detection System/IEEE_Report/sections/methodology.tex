@@ -1,0 +1,20 @@
+\section{Methodology} \label{sec:methodology}
+
+\subsection{Dataset and Preprocessing}
+
+We created a dataset of 100+ text pairs from AI research paper summaries. Plagiarism variants include direct copying, paraphrasing, and semantic variations, with balanced class distribution (50\% plagiarized, 50\% non-plagiarized). Data was split 70\% training, 15\% validation, 15\% test. Preprocessing includes lowercasing, URL/email removal, special character removal, and tokenization.
+
+\subsection{Model Approaches}
+
+\subsubsection{TF-IDF (Baseline)}
+Converts text to TF-IDF vectors using 5000 maximum features with (1,2)-gram range. Similarity computed via cosine distance with 0.5 threshold. Time complexity: $O(n \times m)$.
+
+\subsubsection{BiLSTM (Deep Learning)}
+Architecture: Embedding layer (100D) $\rightarrow$ BiLSTM (64 hidden) $\rightarrow$ 3 FC layers with ReLU and 0.3 dropout. Training: Adam optimizer (lr=0.001), BCE loss, 10 epochs, batch size 32.
+
+\subsubsection{BERT (Transformers)}
+Fine-tunes pre-trained bert-base-uncased with 2-layer MLP classification head. Fine-tuning: lr=2e-5, 5 epochs, batch size 16, max length 128 tokens.
+
+\subsection{Evaluation Metrics}
+
+We evaluate using five metrics: Accuracy (overall correctness), Precision (TP/(TP+FP)), Recall (TP/(TP+FN)), F1-Score, and ROC-AUC. All metrics computed on held-out test set.

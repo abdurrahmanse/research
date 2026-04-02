@@ -1,0 +1,144 @@
+\section{Experimental Setup} \label{sec:experimental}
+
+\subsection{Experimental Design}
+
+We conduct a systematic comparative evaluation using controlled experimental conditions to ensure fair assessment:
+
+\subsubsection{Controlled Variables}
+
+\begin{enumerate}
+  \item \textbf{Data source} --- Identical dataset across all three models
+  \item \textbf{Train/val/test splits} --- Same stratified partition for reproducibility
+  \item \textbf{Preprocessing} --- Identical preprocessing pipeline for all approaches
+  \item \textbf{Evaluation metrics} --- Computed using identical methodology
+  \item \textbf{Random seeds} --- Fixed to eliminate stochastic variation
+\end{enumerate}
+
+\subsubsection{Independent Variables}
+
+\begin{enumerate}
+  \item \textbf{Approach type} --- TF-IDF (classical ML), BiLSTM (RNN), BERT (Transformer)
+  \item \textbf{Model architecture} --- Varies per approach (vectorizer vs neural network vs pre-trained)
+  \item \textbf{Training paradigm} --- Supervised fine-tuning vs transfer learning
+\end{enumerate}
+
+\subsubsection{Dependent Variables}
+
+\begin{enumerate}
+  \item \textbf{Accuracy, Precision, Recall, F1, AUC} --- Performance metrics
+  \item \textbf{Inference latency} --- Model response time per prediction
+  \item \textbf{Memory footprint} --- Model size and GPU memory requirements
+  \item \textbf{Training time} --- Duration from initialization to convergence
+\end{enumerate}
+
+\subsection{Validation Strategy}
+
+\subsubsection{Temporal Validation}
+
+Models evaluated on temporally-held-out test set (15\% data, time-ordered split) ensuring temporal consistency: models not trained on future data.
+
+\subsubsection{Cross-Validation}
+
+For robustness analysis, stratified 5-fold cross-validation performed on full dataset with reported metrics as mean $\pm$ standard deviation across folds.
+
+\subsubsection{Statistical Testing}
+
+Paired t-tests (two-tailed, $\alpha = 0.05$) assess statistical significance of performance differences between approaches.
+
+\subsection{Model Convergence Criteria}
+
+\subsubsection{TF-IDF}
+
+No training phase; convergence immediate upon vectorizer initialization. Validation on held-out validation set to tune threshold parameter.
+
+\subsubsection{BiLSTM}
+
+Training stops when:
+\begin{enumerate}
+  \item Validation accuracy plateaus for 2 consecutive epochs, OR
+  \item Maximum 10 epochs reached
+\end{enumerate}
+
+Learning curves (training/validation loss) monitored for overfitting detection.
+
+\subsubsection{BERT}
+
+Fine-tuning stops when:
+\begin{enumerate}
+  \item Validation accuracy plateaus for 1 epoch, OR
+  \item Maximum 5 epochs reached
+\end{enumerate}
+
+Early stopping checkpoint loaded containing weights with best validation performance.
+
+\subsection{Threshold Optimization}
+
+For binary classification, optimal decision thresholds determined via:
+
+\begin{enumerate}
+  \item \textbf{ROC curve analysis} --- Maximize Youden's index: $J = \text{Sensitivity} + \text{Specificity} - 1$
+  
+  \item \textbf{F1 optimization} --- Select threshold maximizing F1-Score on validation set
+  
+  \item \textbf{Precision-recall trade-off} --- Institution-specific tuning based on acceptable false positive rate
+\end{enumerate}
+
+Thresholds determined on validation set and applied unchanged to test set for unbiased evaluation.
+
+\subsection{Generalization Analysis}
+
+\subsubsection{In-Domain Testing}
+
+Models evaluated on academic text from same domain (AI/ML papers) used in training.
+
+\subsubsection{Out-of-Domain Testing}
+
+Model robustness evaluated on:
+\begin{itemize}
+  \item Different academic domains (biology, chemistry papers)
+  \item Non-academic technical writing (documentation, blog posts)
+  \item Adversarial plagiarism (extracted from plagiarism detection literature)
+\end{itemize}
+
+\subsubsection{Plagiarism Type Breakdown}
+
+Performance analyzed separately for each plagiarism category:
+\begin{itemize}
+  \item Direct copying detection rate
+  \item Paraphrasing detection rate
+  \item Semantic variation detection rate
+\end{itemize}
+
+This breakdown identifies model strengths/weaknesses for specific plagiarism types.
+
+\subsection{Ablation Studies}
+
+For transformer model, ablation analysis examines:
+
+\begin{enumerate}
+  \item \textbf{Pre-training value} --- Fine-tuning vs training from random initialization
+  
+  \item \textbf{Model size} --- bert-base vs bert-large comparison
+  
+  \item \textbf{Task head complexity} --- Single FC layer vs multi-layer MLP
+  
+  \item \textbf{Sequence length} --- Impact of truncation to 128 tokens
+\end{enumerate}
+
+Results quantify contribution of each component to final performance.
+
+\subsection{Error Analysis}
+
+Detailed analysis of misclassifications:
+
+\begin{enumerate}
+  \item \textbf{False positives} --- Legitimate original content flagged as plagiarism (unnecessary accusations)
+  
+  \item \textbf{False negatives} --- Undetected plagiarism (missed violations)
+  
+  \item \textbf{Confidence distribution} --- Histogram of model confidence scores for correct vs incorrect predictions
+  
+  \item \textbf{Challenging cases} --- Identify dataset instances where multiple models struggle
+\end{enumerate}
+
+This analysis guides threshold setting and future improvement directions.

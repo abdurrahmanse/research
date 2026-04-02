@@ -1,0 +1,48 @@
+\section{Problem Statement and Motivation} \label{sec:problem}
+
+\subsection{Academic Integrity Crisis}
+
+Plagiarism represents a significant threat to academic integrity in higher education institutions globally. Recent surveys indicate that 30-40\% of undergraduate students engage in some form of plagiarism, from minor infractions to systematic academic dishonesty. This crisis undermines educational quality and institutional credibility \cite{Callan2018}.
+
+Traditional plagiarism constitutes direct copying with minimal modification. However, modern plagiarism techniques have evolved to include:
+\begin{itemize}
+  \item \textbf{Paraphrasing} --- Rewriting sentences while preserving meaning
+  \item \textbf{Mosaic plagiarism} --- Mixing original and copied content
+  \item \textbf{Idea theft} --- Presenting others' concepts without attribution
+  \item \textbf{Translation plagiarism} --- Copying from foreign language sources
+  \item \textbf{Automation attacks} --- Using adversarial techniques to evade detection
+\end{itemize}
+
+\subsection{Limitations of Current Systems}
+
+Existing plagiarism detection systems face fundamental limitations:
+
+\begin{enumerate}
+  \item \textbf{String-matching vulnerability}: Hash-based and fingerprinting approaches fail against lexical variation and semantic rephrasing, limiting detection accuracy to 40-60\% for sophisticated plagiarism.
+  
+  \item \textbf{Computational constraints}: Some deep learning systems require substantial GPU resources, limiting deployment in resource-constrained institutions.
+  
+  \item \textbf{Interpretability gap}: Black-box models provide plagiarism flags without explaining reasoning, complicating academic disputes and appeal processes.
+  
+  \item \textbf{False positive rate}: Aggressive detection generates false positives, penalizing legitimate paraphrasing and common knowledge expression.
+  
+  \item \textbf{No multi-modal analysis}: Existing systems process text alone without considering source attribution, citation patterns, or content context.
+\end{enumerate}
+
+\subsection{Research Objectives}
+
+This work addresses these limitations through:
+
+\begin{enumerate}
+  \item \textbf{Systematic comparison} of three detection paradigms spanning classical ML, deep learning, and transformers
+  
+  \item \textbf{Quantitative evaluation} of accuracy versus computational cost, enabling institution-specific deployment decisions
+  
+  \item \textbf{Balanced precision/recall analysis} to optimize system calibration for acceptable false positive rates
+  
+  \item \textbf{Practical recommendations} for hybrid systems combining multiple approaches
+  
+  \item \textbf{Foundation for future research} in multilingual detection, adversarial robustness, and source attribution
+\end{enumerate}
+
+By evaluating these approaches systematically, institutions can select optimal detection methods aligned with their accuracy requirements, computational budgets, and deployment constraints.

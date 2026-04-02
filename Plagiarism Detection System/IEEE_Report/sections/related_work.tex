@@ -1,0 +1,31 @@
+\section{Related Work} \label{sec:related_work}
+
+Plagiarism detection has evolved significantly with advances in machine learning and natural language processing. Early systems relied on string-matching and hash-based techniques, which are effective for detecting near-duplicate content but vulnerable to paraphrasing attacks.
+
+\subsection{Traditional Approaches}
+
+Fingerprinting-based systems such as MOSS (Measure of Software Similarity) and Turnitin employ hash-based matching, which excels at detecting direct copying with $O(n)$ complexity. However, these approaches inherently fail against lexical variation and semantic paraphrasing, as demonstrated in \cite{Schleimer2003} with the Rabin fingerprinting algorithm.
+
+String-matching algorithms including Longest Common Subsequence (LCS) and Levenshtein distance provide character-level similarity but lack semantic understanding. Cosine similarity with bag-of-words representations marked a transition toward semantic awareness, though limited by vocabulary sparsity.
+
+\subsection{Machine Learning Era}
+
+TF-IDF (Term Frequency-Inverse Document Frequency) combined with cosine similarity became a standard baseline, offering improved efficiency over string matching. \cite{Robertson2009} established TF-IDF's strong performance for document similarity tasks. Nevertheless, these methods ignore word order, syntactic structure, and semantic relationships.
+
+Support Vector Machines (SVMs) and Random Forests were applied to plagiarism detection with engineered features (n-grams, stylometric features), as documented in \cite{Stamatatos2009}. These approaches improved upon TF-IDF but remained constrained by hand-crafted feature engineering.
+
+\subsection{Deep Learning Approaches}
+
+Convolutional Neural Networks (CNNs) and Recurrent Neural Networks (RNNs) introduced learned representations, with BiLSTM architectures capturing sequential dependencies. \cite{Hochreiter1997} established LSTM's superiority for long-range dependencies, which BiLSTM extends with bidirectional context.
+
+Word embeddings including Word2Vec \cite{Mikolov2013} and GloVe \cite{Pennington2014} further improved semantic representation. These embeddings capture word relationships, enabling models to detect paraphrased plagiarism through semantic similarity in embedding space.
+
+\subsection{Transformer-based Models}
+
+BERT (Bidirectional Encoder Representations from Transformers) \cite{Devlin2018} revolutionized NLP through bidirectional pre-training on massive text corpora. The self-attention mechanism \cite{Vaswani2017} enables capturing long-range dependencies and complex semantic relationships superior to RNNs.
+
+Recent work applies BERT to plagiarism detection with fine-tuning for binary classification. \cite{Shivakumar2020} demonstrated BERT's effectiveness for source code plagiarism detection. \cite{Hosseini2021} extended this to natural language plagiarism with multilingual variants.
+
+\subsection{Gap Analysis}
+
+While individual approaches are well-documented, systematic comparative evaluation of classical ML, deep learning, and transformer methods remains limited. Most research focuses on single-method evaluation without comprehensive efficiency analysis. Our work addresses this gap by providing detailed comparative analysis across three distinct paradigms with computational trade-off quantification.
