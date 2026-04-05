@@ -1,0 +1,226 @@
+\chapter{Dataset Description and Preprocessing}
+\label{ch:dataset}
+
+\section{HAM10000 Dataset Overview}
+
+The HAM10000 (``Human Against Machine with 10,000 training images'') dataset is a large collection of multi-source dermatoscopic images of skin lesions. This dataset has become the de facto standard benchmark for evaluating skin lesion classification algorithms.
+
+\subsection{Data Source and Collection}
+
+The HAM10000 dataset aggregates dermatoscopic images from multiple sources:
+
+\begin{itemize}
+    \item \textbf{UNBC (University of British Columbia)}: Clinical images from dermatology clinics
+    \item \textbf{BCN (Barcelona-Ussai)}: Dermoscopy dataset from Barcelona
+    \item \textbf{ViDIR (Vienna Dynamic Interactive Dermoscopy Reference)}: Interactive dermoscopy reference images
+    \item \textbf{Private Dermatology Clinics}: Clinical cases from practicing dermatologists
+\end{itemize}
+
+Multi-source aggregation introduces heterogeneity in imaging protocols, camera equipment, and dermatoscopic techniques, increasing dataset complexity and real-world relevance.
+
+\section{Dataset Composition and Statistics}
+
+\subsection{Overall Dataset Size}
+
+The HAM10000 dataset contains a total of \textbf{10,015 dermatoscopic images} categorized into seven distinct skin lesion types:
+
+\begin{table}[H]
+\centering
+\caption{HAM10000 Dataset Class Distribution}
+\label{tab:dataset_distribution}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Lesion Type} & \textbf{Code} & \textbf{Count} & \textbf{\% of Total} \\
+\hline
+Actinic Keratosis / Solar Keratosis & akiec & 327 & 3.27\% \\
+Basal Cell Carcinoma & bcc & 514 & 5.14\% \\
+Benign Keratosis-like Lesions & bkl & 1099 & 10.98\% \\
+Dermatofibroma & df & 115 & 1.15\% \\
+Melanoma & mel & 1113 & 11.12\% \\
+Melanocytic Nevi & nv & 6705 & 67.00\% \\
+Vascular Lesions & vasc & 142 & 1.42\% \\
+\hline
+\textbf{Total} & & \textbf{10,015} & \textbf{100\%} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Class Imbalance Analysis}
+
+The dataset exhibits significant class imbalance, with Melanocytic Nevi (nv) comprising 67\% of all images while Dermatofibroma represents only 1.15\%. This imbalance presents training challenges:
+
+\begin{itemize}
+    \item Models trained with standard loss functions are biased toward majority classes
+    \item Minority classes (akiec, df, vasc) with fewer than 400 samples per class require special handling
+    \item Threshold optimization becomes critical for achieving balanced sensitivity and specificity
+\end{itemize}
+
+The ratio between the largest class (nv: 6,705) and smallest class (df: 115) is approximately 58:1, necessitating sophisticated rebalancing strategies.
+
+\section{Image Specifications}
+
+\subsection{Image Properties}
+
+Each image in the HAM10000 dataset has the following specifications:
+
+\begin{itemize}
+    \item \textbf{Format}: JPEG
+    \item \textbf{Resolution}: Variable, typically 450 × 450 to 1200 × 1200 pixels
+    \item \textbf{Color Space}: RGB (8-bit per channel)
+    \item \textbf{Metadata}: Associated with a unique patch ID and classification code
+\end{itemize}
+
+The variable resolution requires standardization for batch processing in deep learning models.
+
+\subsection{Image Quality Characteristics}
+
+Dermatoscopic images exhibit specific characteristics compared to natural images:
+
+\begin{itemize}
+    \item \textbf{Close-up Detail}: Magnified views of skin surface highlighting fine morphological features
+    \item \textbf{Variable Imaging Conditions}: Different dermoscope types and polarization settings create appearance variations
+    \item \textbf{Artifacts}: Ruler measurements, reflections, or other non-lesion elements may be present
+    \item \textbf{Illumination Variation}: Inconsistent lighting conditions across images
+\end{itemize}
+
+\section{Data Preprocessing}
+
+\subsection{Image Resizing and Normalization}
+
+All images are resized to a consistent $224 \times 224$ pixel resolution to:
+
+\begin{enumerate}
+    \item Enable uniform batch processing
+    \item Match the input resolution of pre-trained Swin Transformer models
+    \item Balance information retention and computational efficiency
+\end{enumerate}
+
+Bilinear interpolation is employed for resizing to preserve image quality during downsampling.
+
+Image normalization uses ImageNet statistics:
+
+\begin{equation}
+\tilde{I} = \frac{I - \mu}{\sigma}
+\end{equation}
+
+where $\mu = [0.485, 0.456, 0.406]$ and $\sigma = [0.229, 0.224, 0.225]$ represent ImageNet mean and standard deviation per channel.
+
+\subsection{Data Type Conversion}
+
+Images are converted from integer representation (0-255) to floating-point values (0.0-1.0) before normalization to improve numerical stability during training.
+
+\section{Data Augmentation Strategy}
+
+Data augmentation is crucial for improving model robustness and generalization on the limited HAM10000 dataset. Our augmentation pipeline includes:
+
+\subsection{Geometric Transformations}
+
+\begin{itemize}
+    \item \textbf{Random Rotation}: Rotations up to 180 degrees account for dermoscopic probe orientation variations
+    \item \textbf{Horizontal and Vertical Flipping}: Reflect bilateral symmetries in skin lesions
+    \item \textbf{Random Affine Transformations}: Translation and shearing simulate camera position variations
+    \item \textbf{Elastic Deformations}: Non-linear deformations model skin surface variations
+\end{itemize}
+
+\subsection{Intensity Adjustments}
+
+\begin{itemize}
+    \item \textbf{Brightness Adjustment}: $\pm 20\%$ variation addresses illumination inconsistencies
+    \item \textbf{Contrast Adjustment}: $\pm 20\%$ variation improves feature robustness
+    \item \textbf{Color Jittering}: Saturation and hue adjustments simulate device calibration variations
+    \item \textbf{Gaussian Noise}: Small amount ($\sigma = 0.01$) simulates sensor noise
+\end{itemize}
+
+\subsection{Advanced Augmentation Techniques}
+
+\begin{itemize}
+    \item \textbf{Mixup}: Blends pairs of images and linearly interpolates labels, preventing overfitting to specific image features
+    \item \textbf{CutMix}: Cuts and pastes patches between images while interpolating labels
+    \item \textbf{AutoAugment}: Learned composition of augmentation operations optimized for the specific dataset
+\end{itemize}
+
+\section{Data Splitting Strategy}
+
+\subsection{Train-Validation-Test Split}
+
+The dataset is partitioned using stratified random sampling to maintain class distribution:
+
+\begin{itemize}
+    \item \textbf{Training Set}: 70\% (7,010 images) - used for model parameter optimization
+    \item \textbf{Validation Set}: 15\% (1,502 images) - used for hyperparameter tuning and early stopping
+    \item \textbf{Test Set}: 15\% (1,503 images) - reserved for final model evaluation
+\end{itemize}
+
+Stratified sampling ensures each split maintains the original class distribution, critical for evaluating performance on imbalanced data.
+
+\subsection{Data Leakage Prevention}
+
+Augmentation is applied only to the training set. Validation and test sets use only center-crop and normalization to prevent data leakage of training augmentation statistics.
+
+\section{Class Imbalance Handling}
+
+\subsection{Random Oversampling}
+
+During training, minority classes are randomly oversampled to balance class representation:
+
+\begin{equation}
+n_{\text{balanced}} = \max(n_1, n_2, \ldots, n_7)
+\end{equation}
+
+Each class is resampled to approximately 6,705 samples (the maximum class frequency), creating a balanced training distribution while respecting original test set distribution.
+
+\subsection{Weighted Loss Function}
+
+Class weights in the loss function are inversely proportional to class frequencies:
+
+\begin{equation}
+w_i = \frac{N}{7 \cdot n_i}
+\end{equation}
+
+where $N = 10,015$ is total dataset size and $n_i$ is the count of class $i$. This weighting scheme emphasizes learning from underrepresented classes.
+
+\subsection{Focal Loss Consideration}
+
+For highly imbalanced scenarios, focal loss is considered as an alternative:
+
+\begin{equation}
+FL(p_t) = -\alpha_t(1-p_t)^{\gamma}\log(p_t)
+\end{equation}
+
+where $\gamma = 2$ focuses on hard exemplars and $\alpha$ balances class importance.
+
+\section{Data Quality Assurance}
+
+\subsection{Image Inspection}
+
+A sample of images from each class is manually inspected to verify:
+
+\begin{itemize}
+    \item Correct class assignment
+    \item Adequate image quality and artifact absence
+    \item Representative morphological characteristics
+\end{itemize}
+
+\subsection{Statistical Summary}
+
+Summary statistics for image properties across the dataset:
+
+\begin{table}[H]
+\centering
+\caption{Image Statistics Summary}
+\label{tab:image_stats}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Property} & \textbf{Value} \\
+\hline
+Mean Image Size & 756 × 756 pixels \\
+Median Image Size & 720 × 720 pixels \\
+Image Size Range & 450-1200 pixels \\
+Mean Pixel Intensity (R) & 147.3 \\
+Mean Pixel Intensity (G) & 113.8 \\
+Mean Pixel Intensity (B) & 98.5 \\
+\hline
+\end{tabular}
+\end{table}
+
+The dataset's large size, multi-source composition, and publicly available nature make it an ideal benchmark for developing and evaluating skin lesion classification algorithms.

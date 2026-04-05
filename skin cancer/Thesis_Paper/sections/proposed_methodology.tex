@@ -1,0 +1,308 @@
+\chapter{Proposed Methodology}
+\label{ch:methodology}
+
+\section{Overview of the Approach}
+
+This chapter presents the Swin Transformer-based methodology for skin lesion classification. The approach leverages the advanced architectural principles of Vision Transformers combined with the practical efficiency gains of hierarchical Swin attention mechanisms.
+
+\section{Swin Transformer Architecture}
+
+\subsection{Core Concepts}
+
+The Swin Transformer is a hierarchical vision transformer that introduces shifted window attention mechanisms to address computational limitations of standard Vision Transformers. Key architectural innovations include:
+
+\begin{enumerate}
+    \item \textbf{Hierarchical Feature Representation}: Multi-stage design producing feature maps of progressively reduced spatial resolution, enabling efficient multi-scale feature extraction.
+    
+    \item \textbf{Shifted Window Attention}: Restricts attention computation to local windows with periodic shifting, achieving linear computational complexity relative to image size.
+    
+    \item \textbf{Patch Partitioning}: Divides input images into non-overlapping patches serving as basic units for feature computation.
+\end{enumerate}
+
+\subsection{Patch Embedding}
+
+Input images are initially partitioned into non-overlapping patches. For a $224 \times 224$ input image with patch size $P = 4$:
+
+\begin{equation}
+\text{num\_patches} = \left(\frac{224}{4}\right)^2 = 3136 \text{ patches}
+\end{equation}
+
+Each patch is flattened and linearly embedded into a feature dimension $C = 96$:
+
+\begin{equation}
+z_0 = \text{PatchEmbed}(x) \in \mathbb{R}^{56 \times 56 \times 96}
+\end{equation}
+
+where $56 = 224 / 4$ is the spatial resolution after patch embedding.
+
+\subsection{Linear Embedding Layer}
+
+Patch embeddings pass through a linear projection layer:
+
+\begin{equation}
+z_0 = x \cdot W_e + b_e
+\end{equation}
+
+where $W_e \in \mathbb{R}^{48 \times 96}$ (48 = 3 RGB channels $\times$ 4 $\times$ 4 patch size) and $b_e$ is the bias term.
+
+\subsection{Hierarchical Swin Blocks}
+
+The Swin Transformer employs a hierarchical architecture with four stages. Stage $i$ contains $n_i$ Swin Transformer blocks:
+
+\begin{equation}
+z_i = \text{SwinStage}_i(z_{i-1}), \quad i = 1, 2, 3, 4
+\end{equation}
+
+with feature dimensions:
+\begin{itemize}
+    \item Stage 1: $(56, 56, 96)$
+    \item Stage 2: $(28, 28, 192)$
+    \item Stage 3: $(14, 14, 384)$
+    \item Stage 4: $(7, 7, 768)$
+\end{itemize}
+
+Spatial resolution is reduced by half between stages via patch merging.
+
+\section{Window Attention Mechanism}
+
+\subsection{Standard Multi-Head Self-Attention}
+
+Transformer self-attention computes:
+
+\begin{equation}
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d}}\right)V
+\end{equation}
+
+For an image with $N = 56 \times 56 = 3136$ patches, this requires $\mathcal{O}(N^2) = \mathcal{O}(9.8 \times 10^6)$ operations, making direct application computationally prohibitive.
+
+\subsection{Shifted Window Attention}
+
+The Swin Transformer restricts attention to local windows. For window size $W = 7$:
+
+\begin{equation}
+\text{Complexity} = \mathcal{O}(4N \cdot W^2) = \mathcal{O}(4 \cdot 3136 \cdot 49) = \mathcal{O}(615K)
+\end{equation}
+
+This reduction from $9.8M$ to $615K$ operations represents approximately 16$\times$ complexity reduction while maintaining global receptive field through progressive window shifting.
+
+\subsection{Window Partitioning}
+
+Feature maps are partitioned into non-overlapping windows:
+
+\begin{equation}
+\text{num\_windows} = \left(\frac{H}{W}\right) \times \left(\frac{W}{W}\right) = \left(\frac{56}{7}\right)^2 = 64 \text{ windows}
+\end{equation}
+
+Each window contains $(7 \times 7 = 49)$ patches. Within each window, standard multi-head attention is computed independently.
+
+\subsection{Shifted Window Design}
+
+In alternate layers, windows are shifted by $(W/2, W/2)$ to introduce cross-window connections:
+
+\begin{equation}
+\text{shift} = \begin{cases}
+(0, 0) & \text{if layer index is even} \\
+(W/2, W/2) & \text{if layer index is odd}
+\end{cases}
+\end{equation}
+
+Cyclic shifting ensures no increase in window count. The shift introduces efficient global communication while maintaining locality constraints.
+
+\section{Multi-Head Attention with Relative Position Bias}
+
+### Multi-Head Attention Computation
+
+Each Swin block employs multi-head attention with $h$ heads:
+
+\begin{equation}
+\text{MultiHeadAttn}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h)W^O
+\end{equation}
+
+where each head computes attention on a subspace of dimension $d = C/h$ and $W^O$ is the output projection.
+
+\subsection{Relative Position Bias}
+
+Rather than absolute position embeddings, Swin Transformers use relative position biases:
+
+\begin{equation}
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d}} + B\right)V
+\end{equation}
+
+where $B \in \mathbb{R}^{W^2 \times W^2}$ is a learnable bias matrix dependent on relative positions:
+
+\begin{equation}
+B_{ij} = B(\Delta x, \Delta y), \quad \Delta x = x_i - x_j, \Delta y = y_i - y_j
+\end{equation}
+
+Relative position bias improves generalization to different image sizes and provides inductive bias favoring local relationships.
+
+\section{Swin Transformer Block Structure}
+
+Each Swin Transformer block consists of:
+
+\begin{enumerate}
+    \item \textbf{Layer Normalization}: Applied before attention (pre-norm design)
+    \item \textbf{Window Multi-Head Self-Attention}: With relative position bias
+    \item \textbf{Residual Connection}: Skip connection enables deep network training
+    \item \textbf{Layer Normalization}: Applied before feed-forward
+    \item \textbf{Feed-Forward Network}: Two-layer MLP with GELU activation
+    \item \textbf{Residual Connection}: Skip connection
+\end{enumerate}
+
+Mathematically:
+
+\begin{equation}
+\tilde{z} = \text{WindowAttn}(\text{LayerNorm}(z)) + z
+\end{equation}
+
+\begin{equation}
+z' = \text{MLP}(\text{LayerNorm}(\tilde{z})) + \tilde{z}
+\end{equation}
+
+\subsection{Feed-Forward Network}
+
+The MLP contains two linear layers with GELU activation:
+
+\begin{equation}
+\text{MLP}(z) = W_2 \cdot \text{GELU}(W_1 \cdot z + b_1) + b_2
+\end{equation}
+
+where the hidden dimension is typically $4C$ (expansion ratio of 4).
+
+\section{Patch Merging for Hierarchical Design}
+
+Between stages, spatial resolution is progressively reduced via patch merging:
+
+\begin{equation}
+z_{i} = \text{PatchMerge}(z_{i-1})
+\end{equation}
+
+Patch merging combines $2 \times 2$ neighbor patches:
+
+\begin{equation}
+\text{Merged} = \left[\begin{array}{c}
+z[2i, 2j, :] \\
+z[2i+1, 2j, :] \\
+z[2i, 2j+1, :] \\
+z[2i+1, 2j+1, :]
+\end{array}\right]
+\end{equation}
+
+The concatenated patches are linearly embedded, increasing the feature dimension $C$ and reducing spatial resolution by half. This hierarchical design mirrors CNN feature pyramid structures.
+
+\section{Classification Head}
+
+After four stages of Swin blocks, global average pooling aggregates spatial information:
+
+\begin{equation}
+\text{pool} = \frac{1}{HW}\sum_{h=1}^{H}\sum_{w=1}^{W} z_{4}[h, w, :]
+\end{equation}
+
+The pooled features pass through a linear classification layer:
+
+\begin{equation}
+\hat{y} = \text{softmax}(W_c \cdot \text{pool} + b_c)
+\end{equation}
+
+where $W_c \in \mathbb{R}^{768 \times 7}$ projects to 7-dimensional class logits (one per lesion type).
+
+\section{Model Configuration for Medical Imaging}
+
+The Swin Transformer is instantiated with the ``Tiny'' variant configuration optimized for training efficiency on medical imaging datasets:
+
+\begin{table}[H]
+\centering
+\caption{Swin Transformer Tiny Configuration}
+\label{tab:swin_config}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Parameter} & \textbf{Value} \\
+\hline
+Patch Size & 4 \\
+Window Size & 7 \\
+Embedding Dimension & 96 \\
+Number of Heads & 3, 6, 12, 24 (per stage) \\
+MLP Ratio & 4 \\
+Blocks per Stage & 2, 2, 6, 2 \\
+Total Parameters & $\approx$28.3M \\
+Model Name & swin\_tiny\_patch4\_window7\_224 \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Transfer Learning Strategy}
+
+The Swin Transformer is initialized with ImageNet-pretrained weights. Pre-trained initialization provides:
+
+\begin{enumerate}
+    \item Strong initialization accelerating convergence
+    \item Learned representations transferable to medical domains
+    \item Regularization effect preventing overfitting on limited datasets
+\end{enumerate}
+
+The classification head is randomly initialized while all other layers use ImageNet weights.
+
+\section{Loss Function and Optimization}
+
+\subsection{Cross-Entropy Loss with Class Weighting}
+
+The learning objective combines categorical cross-entropy with class weights:
+
+\begin{equation}
+\mathcal{L} = -\sum_{i=1}^{7} w_i \cdot y_i \cdot \log(\hat{y}_i)
+\end{equation}
+
+where $w_i = \frac{N}{7 \cdot n_i}$ is the weight for class $i$, accounting for class imbalance.
+
+\subsection{Optimization Algorithm}
+
+AdamW optimizer is employed with hyperparameters:
+
+\begin{equation}
+\theta_{t+1} = \theta_t - \alpha \cdot m_t / \sqrt{v_t + \epsilon} - \lambda \theta_t
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $\alpha = 1 \times 10^{-4}$: Learning rate
+    \item $\lambda = 1 \times 10^{-4}$: Weight decay (L2 regularization)
+    \item $\beta_1 = 0.9, \beta_2 = 0.999$: Adam parameters
+\end{itemize}
+
+AdamW decouples weight decay from gradient-based updates, improving optimization behavior.
+
+\subsection{Learning Rate Scheduling}
+
+A cosine annealing learning rate schedule is employed:
+
+\begin{equation}
+\alpha_t = \frac{\alpha_{\min} + \alpha_{\max}}{2} + \frac{\alpha_{\max} - \alpha_{\min}}{2} \cos\left(\pi \frac{t}{T}\right)
+\end{equation}
+
+This schedule gradually reduces learning rate following a cosine curve, improving final convergence.
+
+\section{Regularization Techniques}
+
+\subsection{DropOut}
+
+Dropout layers with $p = 0.2$ are applied in:
+\begin{itemize}
+    \item Attention modules after softmax
+    \item MLP feed-forward networks
+\end{itemize}
+
+\subsection{Stochastic Depth}
+
+Stochastic depth randomly drops entire blocks during training with probability:
+
+\begin{equation}
+p_{\text{drop}} = \frac{\text{layer\_id}}{\text{total\_layers}} \times 0.2
+\end{equation}
+
+This technique improves generalization on limited medical imaging datasets.
+
+\subsection{Early Stopping}
+
+Training is terminated if validation loss does not improve for 5 consecutive epochs, preventing overfitting.
+
+This comprehensive methodology leverages recent advances in vision transformers while implementing domain-specific optimizations for medical imaging applications.

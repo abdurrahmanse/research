@@ -1,0 +1,325 @@
+\chapter{Experimental Design and Validation}
+\label{ch:experimental_setup}
+
+\section{Overview of Experimental Framework}
+
+This chapter describes the comprehensive experimental design employed to evaluate the proposed Swin Transformer-based skin lesion classification model. The experiments are structured to address the research questions and validate the claims through rigorous empirical evaluation.
+
+\section{Baseline Models for Comparison}
+
+To contextualize the performance of the proposed Swin Transformer approach, we compare against several widely-used baseline architectures:
+
+\subsection{Convolutional Neural Network Baselines}
+
+\subsubsection{ResNet-50}
+
+ResNet-50 represents the standard CNN baseline for medical imaging:
+
+\begin{itemize}
+    \item 50 layers with residual connections
+    \item Pre-trained on ImageNet
+    \item 25.5 million parameters
+    \item Computational complexity: $4.1 \times 10^9$ FLOPs
+\end{itemize}
+
+ResNet serves as the primary CNN comparison due to its widespread adoption and proven effectiveness in medical imaging applications.
+
+\subsubsection{DenseNet-121}
+
+DenseNet provides an alternative CNN architecture emphasizing dense connections:
+
+\begin{itemize}
+    \item 121 layers with dense connections between all layer pairs
+    \item Pre-trained on ImageNet
+    \item 7.9 million parameters
+    \item Superior feature propagation and parameter efficiency
+\end{itemize}
+
+\subsubsection{EfficientNet-B3}
+
+EfficientNet provides a computationally efficient baseline:
+
+\begin{itemize}
+    \item Optimized mobile-friendly architecture
+    \item 10.8 million parameters
+    \item Compound scaling of width, depth, and resolution
+    \item Relevant for potential deployment constraints
+\end{itemize}
+
+\subsection{Vision Transformer Baseline}
+
+\subsubsection{Vision Transformer (ViT-B/16)}
+
+Standard Vision Transformer provides the baseline transformer comparison:
+
+\begin{itemize}
+    \item Pure transformer architecture without hierarchical design
+    \item 86 million parameters
+    \item Fully global attention (quadratic complexity)
+    \item Pre-trained on ImageNet-21K
+\end{itemize}
+
+\section{Comparative Evaluation Protocol}
+
+All models are evaluated under identical conditions to ensure fair comparison:
+
+\subsection{Training Configuration Standardization}
+
+Identical hyperparameters are applied to all models:
+
+\begin{table}[H]
+\centering
+\caption{Standardized Training Configuration}
+\label{tab:training_config}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Hyperparameter} & \textbf{Value} \\
+\hline
+Batch Size & 32 \\
+Learning Rate & $1 \times 10^{-4}$ \\
+Weight Decay & $1 \times 10^{-4}$ \\
+Optimizer & AdamW \\
+Scheduler & Cosine Annealing \\
+Maximum Epochs & 50 \\
+Early Stopping Patience & 5 epochs \\
+Loss Function & Weighted Cross-Entropy \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Hardware Consistency}
+
+All experiments are conducted on the same hardware to eliminate performance variation from computational differences. Runtime comparisons are meaningful across all models.
+
+\subsection{Random Seed Control}
+
+All experiments use identical random seeds for reproducibility. Five independent runs with different random seeds are conducted, with results reported as mean ± standard deviation.
+
+\section{Ablation Studies}
+
+Ablation studies systematically examine the contribution of key architectural and training components:
+
+\subsection{Ablation Study 1: Window Attention vs. Global Attention}
+
+This ablation evaluates whether the computational efficiency of shifted window attention comes at an accuracy cost:
+
+\begin{itemize}
+    \item \textbf{Configuration A}: Standard Swin Transformer with shifted window attention (proposed)
+    \item \textbf{Configuration B}: Modified version with global attention replacing window attention
+    \item \textbf{Configuration C}: Hybrid design with global attention in early stages only
+\end{itemize}
+
+Expected Outcome: Window attention maintains or exceeds global attention accuracy while providing significant computational speedup.
+
+\subsection{Ablation Study 2: Transfer Learning Effectiveness}
+
+This ablation quantifies improvements from ImageNet pre-training:
+
+\begin{itemize}
+    \item \textbf{Configuration A}: Swin Transformer with ImageNet pre-training (proposed)
+    \item \textbf{Configuration B}: Swin Transformer trained from random initialization
+    \item \textbf{Configuration C}: Various pre-training datasets (ImageNet-21K, COCO)
+\end{itemize}
+
+Expected Outcome: ImageNet pre-training provides substantial accuracy boost (5-10\%), validating transfer learning approach.
+
+\subsection{Ablation Study 3: Hierarchical Architecture}
+
+This ablation evaluates the importance of multi-scale feature extraction:
+
+\begin{itemize}
+    \item \textbf{Configuration A}: Full hierarchical Swin Transformer (4 stages)
+    \item \textbf{Configuration B}: Single-scale variant (all attention at same resolution)
+    \item \textbf{Configuration C}: Hybrid with mixed hierarchical levels
+\end{itemize}
+
+Expected Outcome: Hierarchical design provides consistent accuracy improvements.
+
+\subsection{Ablation Study 4: Data Augmentation Impact}
+
+This ablation measures contribution of different augmentation techniques:
+
+\begin{itemize}
+    \item \textbf{Configuration A}: Full augmentation pipeline (proposed)
+    \item \textbf{Configuration B}: No augmentation (baseline inputs)
+    \item \textbf{Configuration C}: Geometric augmentation only
+    \item \textbf{Configuration D}: Intensity augmentation only
+    \item \textbf{Configuration E}: Advanced augmentation only (mixup, cutmix)
+\end{itemize}
+
+Expected Outcome: Comprehensive augmentation provides 3-5\% accuracy improvement.
+
+\subsection{Ablation Study 5: Class Balancing Techniques}
+
+This ablation compares strategies for handling class imbalance:
+
+\begin{itemize}
+    \item \textbf{Configuration A}: Weighted loss + oversampling (proposed)
+    \item \textbf{Configuration B}: Weighted loss only
+    \item \textbf{Configuration C}: Oversampling only
+    \item \textbf{Configuration D}: Focal loss
+    \item \textbf{Configuration E}: No balancing
+\end{itemize}
+
+Expected Outcome: Combined weighted loss and oversampling achieves best minority class performance.
+
+\section{Performance Evaluation Metrics}
+
+Comprehensive metrics aligned with medical imaging standards are computed:
+
+\subsection{Overall Performance Metrics}
+
+\begin{table}[H]
+\centering
+\caption{Evaluation Metrics}
+\label{tab:metrics}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Metric} & \textbf{Formula} & \textbf{Relevance} \\
+\hline
+Accuracy & $\frac{TP + TN}{TP + TN + FP + FN}$ & Overall correctness \\
+Precision & $\frac{TP}{TP + FP}$ & False positive rate \\
+Recall/Sensitivity & $\frac{TP}{TP + FN}$ & False negative rate, crucial for malignancy \\
+Specificity & $\frac{TN}{TN + FP}$ & Detection of benign lesions \\
+F1-Score & $2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}$ & Balanced measure \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Per-Class Performance}
+
+Per-class metrics enable identification of which lesion types present classification challenges:
+
+\begin{equation}
+\text{Recall}_i = \frac{TP_i}{TP_i + FN_i}, \quad i = 1, \ldots, 7
+\end{equation}
+
+Per-class recall is particularly important, as each lesion type has distinct clinical implications.
+
+\subsection{Threshold-Independent Metrics}
+
+\subsubsection{ROC-AUC Score}
+
+Area under the receiver operating characteristic curve:
+
+\begin{equation}
+\text{ROC-AUC} = \int_0^1 \text{TPR}(t) \, d\text{FPR}(t)
+\end{equation}
+
+This measure is independent of classification threshold and appropriate for imbalanced datasets.
+
+\subsubsection{Precision-Recall AUC}
+
+Area under the precision-recall curve:
+
+\begin{equation}
+\text{PR-AUC} = \int_0^1 \text{Precision}(t) \, d\text{Recall}(t)
+\end{equation}
+
+PR-AUC is more informative for imbalanced datasets compared to ROC-AUC.
+
+\section{Statistical Significance Testing}
+
+\subsection{Multiple Runs and Confidence Intervals}
+
+All experiments are repeated 5 times with different random seeds. Results are reported as:
+
+\begin{equation}
+\text{Mean} \pm \text{Std Dev}
+\end{equation}
+
+Confidence intervals at 95\% confidence level are computed for comparative claims.
+
+\subsection{Statistical Tests}
+
+Significant differences between models are verified using paired t-tests with Bonferroni correction for multiple comparisons:
+
+\begin{equation}
+t = \frac{\mu_1 - \mu_2}{\sqrt{s_1^2/n + s_2^2/n}}
+\end{equation}
+
+$p < 0.05/k$ is considered significant (where $k$ is number of comparisons).
+
+\section{Cross-Validation Strategy}
+
+While not the main evaluation, 5-fold cross-validation is conducted on the full dataset:
+
+\begin{itemize}
+    \item Each fold maintains original class distribution (stratified)
+    \item Models trained independently on each fold
+    \item Performance consistency across folds assessed
+    \item Cross-validation estimates expected performance on unseen data
+\end{itemize}
+
+\section{Hyperparameter Sensitivity Analysis}
+
+Key hyperparameters are varied to assess sensitivity:
+
+\subsection{Learning Rate Sensitivity}
+
+Learning rates $\{1 \times 10^{-5}, 5 \times 10^{-5}, 1 \times 10^{-4}, 5 \times 10^{-4}\}$ are evaluated.
+
+\subsection{Batch Size Analysis}
+
+Batch sizes $\{8, 16, 32, 64\}$ are tested to identify practical constraints.
+
+\subsection{Weight Decay Impact}
+
+Weight decay values $\{0, 1 \times 10^{-5}, 1 \times 10^{-4}, 1 \times 10^{-3}\}$ are evaluated.
+
+Results demonstrate performance robustness to hyperparameter choices.
+
+\section{Uncertainty Quantification Analysis}
+
+Beyond point predictions, model confidence calibration is assessed:
+
+\subsection{Calibration Metrics}
+
+\subsubsection{Expected Calibration Error (ECE)}
+
+ECE measures alignment between predicted confidence and actual accuracy:
+
+\begin{equation}
+\text{ECE} = \sum_{m=1}^{M} \frac{|B_m|}{N} |\text{acc}(B_m) - \text{conf}(B_m)|
+\end{equation}
+
+\subsubsection{Confidence-Accuracy Correlation}
+
+Correlation between predicted probability and prediction correctness is analyzed. High correlation indicates reliable uncertainty estimates suitable for clinical decision support.
+
+\section{Computational Efficiency Analysis}
+
+\subsection{Inference Time Comparison}
+
+Inference time per image is measured on identical hardware:
+
+\begin{equation}
+\text{Inference Time per Image} = \frac{\text{Total Inference Time}}{\text{Number of Images}}
+\end{equation}
+
+\subsection{Memory Requirements}
+
+Peak memory consumption during training and inference is monitored.
+
+\subsection{Model Size Comparison}
+
+Parameter count and model file size enable comparison of deployment requirements:
+
+\begin{table}[H]
+\centering
+\caption{Computational Efficiency Metrics}
+\label{tab:comp_efficiency}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Model} & \textbf{Parameters} & \textbf{Inference Time} & \textbf{Memory Usage} \\
+\hline
+ResNet-50 & 25.5M & - & - \\
+DenseNet-121 & 7.9M & - & - \\
+EfficientNet-B3 & 10.8M & - & - \\
+ViT-B/16 & 86M & - & - \\
+Swin-Tiny (Proposed) & 28.3M & - & - \\
+\hline
+\end{tabular}
+\end{table}
+
+This experimental framework provides comprehensive evaluation enabling rigorous assessment of the proposed approach.

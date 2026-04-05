@@ -1,0 +1,158 @@
+\chapter{Literature Review and Related Work}
+\label{ch:related_work}
+
+\section{Skin Cancer Classification: Medical Perspective}
+
+\subsection{Types of Skin Lesions}
+
+The HAM10000 dataset classifies skin lesions into seven distinct categories:
+
+\begin{enumerate}
+    \item \textbf{Actinic Keratosis (AK)}: A precancerous lesion commonly found in sun-exposed areas.
+    
+    \item \textbf{Basal Cell Carcinoma (BCC)}: The most common type of skin cancer, generally non-aggressive.
+    
+    \item \textbf{Dermatofibroma (DF)}: A benign skin growth that is usually harmless.
+    
+    \item \textbf{Melanoma (MEL)}: The most dangerous form of skin cancer with highest mortality rate.
+    
+    \item \textbf{Nevus (NV)}: Common benign skin moles, typically harmless.
+    
+    \item \textbf{Pigmented Benign Keratosis (BKL)}: A benign growth commonly appearing with age.
+    
+    \item \textbf{Vascular Lesion (VASC)}: Blood vessel abnormalities appearing as red or purple spots.
+\end{enumerate}
+
+Accurate differentiation among these categories is crucial for determining prognosis and treatment options. Many of these lesions exhibit considerable visual similarity, presenting a significant diagnostic challenge even for experienced dermatologists.
+
+\subsection{Clinical Diagnostic Criteria}
+
+The ABCDE rule is a widely adopted clinical guideline for melanoma detection:
+
+\begin{itemize}
+    \item \textbf{Asymmetry}: One half of the lesion differs from the other.
+    \item \textbf{Border Irregularity}: The boundary is jagged or ill-defined.
+    \item \textbf{Color Variation}: Multiple colors present within a single lesion.
+    \item \textbf{Diameter}: Lesion larger than a pencil eraser (>6mm).
+    \item \textbf{Evolution}: Changes in size, shape, or color over time.
+\end{itemize}
+
+Our model aims to capture and systematize these clinical criteria computationally.
+
+\section{Deep Learning for Medical Imaging}
+
+\subsection{Convolutional Neural Networks (CNNs)}
+
+CNNs have established themselves as the foundational architecture for image classification tasks. Seminal works by Krizhevsky et al. \cite{krizhevsky2012imagenet} and subsequent innovations have demonstrated exceptional performance on large-scale image recognition tasks.
+
+\textbf{ResNet and Residual Learning}: He et al. introduced residual networks \cite{he2016deep}, which enabled training of significantly deeper networks through skip connections. ResNet architectures have been extensively applied to medical imaging tasks \cite{ron2019deep}.
+
+\textbf{DenseNet}: Dense connections \cite{huang2017densely} between layers have proven particularly effective for medical imaging, enabling better feature propagation and computational efficiency.
+
+\subsection{Transfer Learning in Medical Imaging}
+
+Transfer learning has become the standard approach for medical imaging applications due to limited availability of annotated datasets. Pre-training on ImageNet and fine-tuning on domain-specific tasks has consistently outperformed training from scratch \cite{raghu2019transfusion}.
+
+The effectiveness of transfer learning in medical imaging is well-documented, with numerous studies demonstrating that networks pre-trained on natural images learn representations highly transferable to medical domains \cite{tajbakhsh2016convolutional}.
+
+\section{Vision Transformers and Attention Mechanisms}
+
+\subsection{Transformer Architecture Basics}
+
+Vaswani et al. introduced the transformer architecture \cite{vaswani2017attention}, which relies exclusively on attention mechanisms rather than recurrence. The self-attention mechanism allows models to capture long-range dependencies and global context effectively.
+
+The mathematical foundation of self-attention is expressed as:
+
+\begin{equation}
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+\end{equation}
+
+where $Q$ (query), $K$ (key), and $V$ (value) are learned projections, and $d_k$ is the dimension of the key.
+
+\subsection{Vision Transformer (ViT)}
+
+Dosovitskiy et al. \cite{dosovitskiy2020image} adapted the transformer architecture for vision tasks, demonstrating that pure attention-based models can achieve superior performance compared to CNNs when trained on sufficiently large datasets.
+
+\subsection{Swin Transformer}
+
+Liu et al. \cite{liu2021swin} introduced the Swin Transformer, which addresses the computational limitations of standard vision transformers through shifted window attention mechanisms:
+
+\begin{itemize}
+    \item \textbf{Hierarchical Architecture}: Multi-stage design producing representations of multiple scales, similar to CNNs.
+    
+    \item \textbf{Shifted Window Attention}: Restricts self-attention computation to local windows with periodic shifting, significantly reducing computational complexity from quadratic to linear.
+    
+    \item \textbf{Inductive Bias}: Incorporates explicit hierarchical structure and locality inductive biases more suitable for vision tasks.
+\end{itemize}
+
+The Swin Transformer has achieved state-of-the-art results across multiple computer vision benchmarks, and recent work \cite{chen2021swin} has demonstrated its applicability to medical imaging tasks.
+
+\section{Skin Lesion Classification: Computational Approaches}
+
+\subsection{Traditional Machine Learning Methods}
+
+Early approaches employed hand-crafted features combined with classical machine learning:
+
+\begin{itemize}
+    \item Color and texture descriptors (GLCM, LBP, SIFT)
+    \item SVM classifiers with various kernel functions
+    \item Ensemble methods (Random Forests, Gradient Boosting)
+\end{itemize}
+
+While interpretable, these methods achieved limited accuracy (60-75\%) compared to modern deep learning approaches.
+
+\subsection{Deep Learning on Skin Lesion Datasets}
+
+The HAM10000 dataset \cite{tschandl2018ham10000} has become the standard benchmark for evaluating skin lesion classification algorithms. Numerous studies have applied various deep learning architectures:
+
+\textbf{CNN Baselines}: Traditional CNN architectures (Inception, ResNet, MobileNet) achieve 85-90\% accuracy on HAM10000.
+
+\textbf{Ensemble Methods}: Combining multiple models has been shown to improve performance to 90-92\% \cite{esteva2019dermatologist}.
+
+\textbf{Recent Transformer-based Approaches}: Limited prior work exists on applying transformers to skin lesion classification, presenting an opportunity for novel contributions.
+
+\section{Class Imbalance in Medical Datasets}
+
+The HAM10000 dataset exhibits significant class imbalance, with melanoma and other malignant classes underrepresented. Addressing this imbalance is crucial for unbiased model training:
+
+\begin{itemize}
+    \item \textbf{Oversampling}: Random oversampling and SMOTE rebalance training data.
+    \item \textbf{Loss Function Modification}: Weighted cross-entropy and focal loss address class imbalance.
+    \item \textbf{Stratified Splitting}: Ensure balanced representation across train/validation/test sets.
+\end{itemize}
+
+\section{Data Augmentation Strategies}
+
+Effective data augmentation is essential for improving model generalization on limited medical imaging datasets:
+
+\begin{itemize}
+    \item Geometric transformations (rotation, flipping, translation)
+    \item Intensity adjustments (brightness, contrast, saturation)
+    \item Advanced techniques (mixup, cutmix, autoaugment)
+\end{itemize}
+
+\section{Evaluation Metrics for Medical Imaging}
+
+Appropriate metrics beyond accuracy are critical for medical applications:
+
+\begin{itemize}
+    \item \textbf{Sensitivity/Recall}: Minimizing false negatives is critical in cancer diagnosis.
+    \item \textbf{Specificity/True Negative Rate}: Reducing unnecessary biopsies.
+    \item \textbf{Precision}: Accuracy of positive predictions.
+    \item \textbf{F1-Score}: Harmonic mean particularly useful with imbalanced data.
+    \item \textbf{ROC-AUC}: Threshold-independent performance assessment.
+    \item \textbf{Confusion Matrix}: Detailed per-class performance analysis.
+\end{itemize}
+
+\section{Research Gaps and Motivation}
+
+Despite substantial progress in applying deep learning to dermatology, several gaps remain:
+
+\begin{itemize}
+    \item Limited exploration of vision transformer architectures for skin lesion classification.
+    \item Lack of comprehensive ablation studies for medical imaging-specific optimizations.
+    \item Insufficient analysis of uncertainty quantification and confidence calibration.
+    \item Limited discussion of practical deployment considerations and clinical integration.
+\end{itemize}
+
+This thesis addresses these gaps through a comprehensive study of Swin Transformer architecture application to skin cancer diagnosis.

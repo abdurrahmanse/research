@@ -1,0 +1,446 @@
+\chapter{Implementation and Technical Details}
+\label{ch:implementation}
+
+\section{Development Environment}
+
+\subsection{Hardware Configuration}
+
+The implementation was developed and evaluated on the following hardware:
+
+\begin{itemize}
+    \item \textbf{GPU}: Apple Silicon Metal Performance Shaders (MPS) / CUDA-compatible GPU
+    \item \textbf{Memory}: 16 GB+ system RAM
+    \item \textbf{Storage}: SSD with 50GB+ free space for dataset and checkpoints
+    \item \textbf{Compute}: Multi-core CPU for data loading and preprocessing
+\end{itemize}
+
+The implementation selects the most efficient available accelerator in preference order: MPS $\rightarrow$ CUDA $\rightarrow$ CPU.
+
+\subsection{Software Stack}
+
+Key dependencies and their versions:
+
+\begin{table}[H]
+\centering
+\caption{Software Dependencies}
+\label{tab:dependencies}
+\begin{tabular}{|l|c|l|}
+\hline
+\textbf{Library} & \textbf{Version} & \textbf{Purpose} \\
+\hline
+Python & 3.8+ & Programming language \\
+PyTorch & 1.12+ & Deep learning framework \\
+torchvision & 0.13+ & Image processing utilities \\
+timm & 0.6+ & Pre-trained model library (Swin implementations) \\
+scikit-learn & 1.0+ & Machine learning metrics \\
+NumPy & 1.21+ & Numerical computations \\
+Pandas & 1.3+ & Data manipulation \\
+Matplotlib & 3.4+ & Visualization \\
+PIL/Pillow & 8.0+ & Image I/O \\
+tqdm & 4.60+ & Progress bars \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Model Implementation}
+
+\subsection{Model Loading from Pre-trained Checkpoint}
+
+The Swin Transformer is loaded from the \texttt{timm} library with ImageNet pre-training:
+
+\begin{lstlisting}[language=Python, caption=Loading Swin Transformer Model]
+import timm
+import torch.nn as nn
+
+MODEL_NAME = "swin_tiny_patch4_window7_224"
+
+# Load pre-trained model
+model = timm.create_model(
+    MODEL_NAME, 
+    pretrained=True, 
+    num_classes=7
+)
+
+# Move to device
+model = model.to(DEVICE)
+\end{lstlisting}
+
+The \texttt{num\_classes} parameter automatically adapts the classification head for 7 skin lesion categories.
+
+\subsection{Custom Model Wrapper}
+
+A wrapper class encapsulates the model with additional functionality for evaluation and uncertainty quantification:
+
+\begin{lstlisting}[language=Python, caption=Custom Model Wrapper]
+class SkinLesionClassifier(nn.Module):
+    def __init__(self, model_name, num_classes=7):
+        super().__init__()
+        self.model = timm.create_model(
+            model_name, 
+            pretrained=True, 
+            num_classes=num_classes
+        )
+        
+    def forward(self, x):
+        logits = self.model(x)
+        probs = torch.softmax(logits, dim=1)
+        return logits, probs
+    
+    def predict(self, x):
+        _, probs = self.forward(x)
+        predictions = torch.argmax(probs, dim=1)
+        confidences = torch.max(probs, dim=1)[0]
+        return predictions, confidences
+\end{lstlisting}
+
+\section{Data Loading Pipeline}
+
+\subsection{Custom Dataset Class}
+
+A PyTorch Dataset subclass handles image loading and augmentation:
+
+\begin{lstlisting}[language=Python, caption=Custom Dataset Implementation]
+from torch.utils.data import Dataset
+from torchvision import transforms
+from PIL import Image
+
+class SkinLesionDataset(Dataset):
+    def __init__(self, image_paths, labels, transform=None):
+        self.image_paths = image_paths
+        self.labels = labels
+        self.transform = transform
+    
+    def __len__(self):
+        return len(self.image_paths)
+    
+    def __getitem__(self, idx):
+        image = Image.open(self.image_paths[idx]).convert('RGB')
+        
+        if self.transform:
+            image = self.transform(image)
+        
+        label = self.labels[idx]
+        return image, label
+\end{lstlisting}
+
+\subsection{Data Augmentation Pipeline}
+
+Training data augmentation is implemented using torchvision transforms:
+
+\begin{lstlisting}[language=Python, caption=Training Augmentation Pipeline]
+from torchvision import transforms
+
+train_transform = transforms.Compose([
+    transforms.RandomRotation(180),
+    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.RandomVerticalFlip(p=0.5),
+    transforms.ColorJitter(
+        brightness=0.2,
+        contrast=0.2,
+        saturation=0.2,
+        hue=0.1
+    ),
+    transforms.RandomAffine(
+        degrees=0,
+        translate=(0.1, 0.1),
+        scale=(0.8, 1.2)
+    ),
+    transforms.GaussianBlur(kernel_size=3),
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize(
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225]
+    )
+])
+
+val_transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize(
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225]
+    )
+])
+\end{lstlisting}
+
+\subsection{DataLoader Configuration}
+
+Data is loaded using PyTorch's DataLoader with efficient batching:
+
+\begin{lstlisting}[language=Python, caption=DataLoader Setup]
+from torch.utils.data import DataLoader, WeightedRandomSampler
+
+# Compute class weights
+class_weights = compute_class_weights(train_labels)
+sampler = WeightedRandomSampler(
+    weights=class_weights, 
+    num_samples=len(train_labels),
+    replacement=True
+)
+
+# Create dataloaders
+train_loader = DataLoader(
+    train_dataset,
+    batch_size=BATCH_SIZE,
+    sampler=sampler,
+    num_workers=NUM_WORKERS,
+    pin_memory=True
+)
+
+val_loader = DataLoader(
+    val_dataset,
+    batch_size=BATCH_SIZE,
+    shuffle=False,
+    num_workers=NUM_WORKERS,
+    pin_memory=True
+)
+\end{lstlisting}
+
+\section{Training Loop Implementation}
+
+\subsection{Training Procedure}
+
+The main training loop implements standard practices for deep learning:
+
+\begin{lstlisting}[language=Python, caption=Training Loop]
+def train_epoch(model, train_loader, criterion, optimizer, device):
+    model.train()
+    total_loss = 0.0
+    correct = 0
+    total = 0
+    
+    progress_bar = tqdm(train_loader)
+    for images, labels in progress_bar:
+        images = images.to(device)
+        labels = labels.to(device)
+        
+        # Forward pass
+        optimizer.zero_grad()
+        logits, probs = model(images)
+        loss = criterion(logits, labels)
+        
+        # Backward pass
+        loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+        optimizer.step()
+        
+        # Metrics
+        total_loss += loss.item()
+        predictions = torch.argmax(probs, dim=1)
+        correct += (predictions == labels).sum().item()
+        total += labels.size(0)
+        
+        progress_bar.set_postfix({
+            'loss': loss.item(),
+            'acc': correct/total
+        })
+    
+    return total_loss / len(train_loader), correct / total
+\end{lstlisting}
+
+\subsection{Validation Procedure}
+
+Validation occurs without gradient computation:
+
+\begin{lstlisting}[language=Python, caption=Validation Function]
+def validate(model, val_loader, criterion, device):
+    model.eval()
+    total_loss = 0.0
+    all_preds = []
+    all_labels = []
+    
+    with torch.no_grad():
+        for images, labels in val_loader:
+            images = images.to(device)
+            labels = labels.to(device)
+            
+            logits, probs = model(images)
+            loss = criterion(logits, labels)
+            
+            total_loss += loss.item()
+            predictions = torch.argmax(probs, dim=1)
+            
+            all_preds.extend(predictions.cpu().numpy())
+            all_labels.extend(labels.cpu().numpy())
+    
+    accuracy = accuracy_score(all_labels, all_preds)
+    return total_loss / len(val_loader), accuracy, all_preds, all_labels
+\end{lstlisting}
+
+\section{Loss Function Configuration}
+
+\subsection{Weighted Cross-Entropy Loss}
+
+The loss function weights classes inversely to their frequency:
+
+\begin{lstlisting}[language=Python, caption=Loss Function Setup]
+import torch.nn as nn
+
+# Compute class weights
+unique_classes, class_counts = np.unique(
+    train_labels, 
+    return_counts=True
+)
+class_weights = len(train_labels) / (len(unique_classes) * class_counts)
+class_weights = torch.tensor(
+    class_weights, 
+    dtype=torch.float32
+).to(DEVICE)
+
+# Create loss function
+criterion = nn.CrossEntropyLoss(weight=class_weights)
+\end{lstlisting}
+
+\section{Optimization Configuration}
+
+\subsection{AdamW Optimizer with Learning Rate Scheduling}
+
+\begin{lstlisting}[language=Python, caption=Optimizer and Scheduler Setup]
+from torch.optim import AdamW
+from torch.optim.lr_scheduler import CosineAnnealingLR
+
+# Optimizer
+optimizer = AdamW(
+    model.parameters(),
+    lr=LEARNING_RATE,
+    weight_decay=WEIGHT_DECAY,
+    betas=(0.9, 0.999)
+)
+
+# Learning rate scheduler
+scheduler = CosineAnnealingLR(
+    optimizer,
+    T_max=NUM_EPOCHS,
+    eta_min=1e-6
+)
+\end{lstlisting}
+
+\section{Model Checkpointing and Early Stopping}
+
+\subsection{Checkpoint Management}
+
+The best model is saved based on validation accuracy:
+
+\begin{lstlisting}[language=Python, caption=Checkpoint Management]
+best_accuracy = 0.0
+patience_counter = 0
+patience = 5
+
+for epoch in range(NUM_EPOCHS):
+    train_loss, train_acc = train_epoch(...)
+    val_loss, val_acc, _, _ = validate(...)
+    
+    print(f"Epoch {epoch+1}: Train Loss: {train_loss:.4f}, "
+          f"Val Acc: {val_acc:.4f}")
+    
+    # Save best model
+    if val_acc > best_accuracy:
+        best_accuracy = val_acc
+        torch.save({
+            'epoch': epoch,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'best_accuracy': best_accuracy
+        }, CHECKPOINT_PATH)
+        patience_counter = 0
+    else:
+        patience_counter += 1
+    
+    # Early stopping
+    if patience_counter >= patience:
+        print(f"Early stopping after {epoch+1} epochs")
+        break
+    
+    scheduler.step()
+\end{lstlisting}
+
+\section{Evaluation Metrics Computation}
+
+\subsection{Comprehensive Metrics}
+
+Evaluation computes multiple metrics aligned with clinical requirements:
+
+\begin{lstlisting}[language=Python, caption=Metrics Computation]
+from sklearn.metrics import (
+    accuracy_score, precision_score, recall_score, f1_score,
+    roc_auc_score, confusion_matrix, classification_report
+)
+
+def compute_metrics(y_true, y_pred, y_proba):
+    """Compute comprehensive evaluation metrics"""
+    metrics = {
+        'accuracy': accuracy_score(y_true, y_pred),
+        'precision': precision_score(
+            y_true, y_pred, 
+            average='weighted', 
+            zero_division=0
+        ),
+        'recall': recall_score(
+            y_true, y_pred, 
+            average='weighted', 
+            zero_division=0
+        ),
+        'f1': f1_score(
+            y_true, y_pred, 
+            average='weighted', 
+            zero_division=0
+        ),
+        'roc_auc': roc_auc_score(
+            y_true, y_proba, 
+            multi_class='ovr'
+        )
+    }
+    return metrics
+\end{lstlisting}
+
+\section{Prediction and Uncertainty Quantification}
+
+\subsection{Class Prediction with Confidence}
+
+\begin{lstlisting}[language=Python, caption=Prediction with Confidence]
+def predict_with_confidence(model, image_path, device):
+    """Predict lesion class with confidence score"""
+    image = Image.open(image_path).convert('RGB')
+    image_tensor = val_transform(image).unsqueeze(0).to(device)
+    
+    with torch.no_grad():
+        _, probs = model(image_tensor)
+        confidence, prediction = torch.max(probs, dim=1)
+    
+    class_dict = {
+        0: 'Actinic Keratosis',
+        1: 'Basal Cell Carcinoma',
+        2: 'Benign Keratosis-like Lesions',
+        3: 'Dermatofibroma',
+        4: 'Melanoma',
+        5: 'Melanocytic Nevi',
+        6: 'Vascular Lesion'
+    }
+    
+    predicted_class = class_dict[prediction.item()]
+    confidence_score = confidence.item()
+    
+    return predicted_class, confidence_score
+\end{lstlisting}
+
+\section{Reproducibility}
+
+\subsection{Random Seed Management}
+
+Reproducible results are ensured through consistent seed management:
+
+\begin{lstlisting}[language=Python, caption=Seed Configuration]
+def set_seed(seed=42):
+    """Set random seeds for reproducibility"""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+set_seed(42)
+\end{lstlisting}
+
+This implementation provides a complete, production-ready framework for training and evaluating the Swin Transformer-based skin lesion classifier.
