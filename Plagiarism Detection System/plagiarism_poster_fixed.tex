@@ -1,0 +1,140 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.3in]{geometry}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{fancybox}
+\usepackage{amsmath}
+
+% Define colors
+\definecolor{darkblue}{RGB}{0,51,102}
+\definecolor{lightblue}{RGB}{173,216,230}
+\definecolor{accent}{RGB}{255,107,107}
+\definecolor{accentgreen}{RGB}{34,177,76}
+\definecolor{lightgreen}{RGB}{200,255,200}
+\definecolor{lightred}{RGB}{255,220,220}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.2cm}
+
+\newcommand{\sectiontitle}[1]{\colorbox{darkblue}{\color{white}\normalsize\textbf{#1}}}
+
+\begin{document}
+
+\begin{center}
+{\Large\textbf{\color{darkblue}Plagiarism Detection System}}\\
+{\small\textbf{A Comparative Study of ML Approaches}}\\
+{\tiny\textit{TF-IDF vs BiLSTM vs BERT}}\\
+\rule{\textwidth}{2pt}
+\end{center}
+
+\begin{multicols}{4}
+
+\section*{\sectiontitle{Abstract}}
+
+{\small This project compares three plagiarism detection approaches on 454 text pairs. TF-IDF achieves \textbf{85.51\% accuracy}, significantly outperforming BiLSTM (59.42\%) and BERT (56.52\%).}
+
+\vspace{0.15cm}
+\fcolorbox{darkblue}{lightblue}{\begin{minipage}{0.98\columnwidth}
+\centering\tiny
+\textbf{Best Performer:} TF-IDF | \textbf{Accuracy: 85.51\%} | \textbf{ROC-AUC: 98.63\%}
+\end{minipage}}
+
+\vspace{0.15cm}
+\section*{\sectiontitle{Dataset}}
+
+{\tiny
+\begin{itemize}
+\item 454 text pairs
+\item 257 Plagiarized (56.6\%)
+\item 70/15/15 split
+\end{itemize}
+}
+
+\vspace{0.1cm}
+\section*{\sectiontitle{Key Findings}}
+
+{\tiny
+\begin{itemize}
+\item TF-IDF wins overall
+\item Data $>$ complexity
+\item No one-size solution
+\end{itemize}
+}
+
+\vspace{0.1cm}
+\includegraphics[width=0.95\columnwidth]{example-image-a}
+
+\columnbreak
+\section*{\sectiontitle{Performance}}
+
+{\tiny
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Metric} & \textbf{TF-IDF} & \textbf{BiLSTM} & \textbf{BERT} \\
+\hline
+Accuracy & \textbf{85.51\%} & 59.42\% & 56.52\% \\
+Precision & \textbf{79.59\%} & 62.22\% & 56.52\% \\
+Recall & 100\% & 71.79\% & 100\% \\
+F1-Score & \textbf{88.64\%} & 66.67\% & 72.22\% \\
+ROC-AUC & \textbf{98.63\%} & 56.58\% & 16.97\% \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+\vspace{0.15cm}
+\includegraphics[width=0.95\columnwidth]{example-image-b}
+
+\columnbreak
+\section*{\sectiontitle{Models Overview}}
+
+{\tiny
+\textbf{\color{accentgreen}TF-IDF}
+\begin{itemize}
+\item Fast (<100ms)
+\item Interpretable
+\item Low memory
+\end{itemize}
+
+\vspace{0.1cm}
+\textbf{\color{accent}BiLSTM}
+\begin{itemize}
+\item Context aware
+\item Slower
+\item Better semantics
+\end{itemize}
+
+\vspace{0.1cm}
+\textbf{\color{darkblue}BERT}
+\begin{itemize}
+\item Best semantics
+\item Pre-trained
+\item Slow, High memory
+\end{itemize}
+}
+
+\includegraphics[width=0.95\columnwidth]{example-image-c}
+
+\columnbreak
+\section*{\sectiontitle{Conclusion}}
+
+{\tiny Empirical evaluation shows that TF-IDF's simplicity and efficiency outperform more complex models on this dataset. This demonstrates that data characteristics matter more than model sophistication.
+}
+
+\vspace{0.15cm}
+\fcolorbox{accentgreen}{lightgreen}{\begin{minipage}{0.98\columnwidth}
+\centering\tiny
+\textbf{Key Insight:} Data drives decisions, not complexity
+\end{minipage}}
+
+\vspace{0.15cm}
+\includegraphics[width=0.95\columnwidth]{example-image}
+
+\end{multicols}
+
+\end{document}
