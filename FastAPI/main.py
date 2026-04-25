@@ -64,7 +64,7 @@ def sort_patients(
 
     if order not in {"asc", "desc"}:
         raise HTTPException(
-            status_code=400, detail="Invalid sort order. Valid orders are: asc, desc")
+            status_code=400, detail="Invalid sort order Valid orders are: asc, desc")
 
     data = load_data()
 
