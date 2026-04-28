@@ -1,8 +1,8 @@
 # Data Science & Machine Learning Repository
 
-This repository contains a collection of machine learning, deep learning, and data science projects, along with a FastAPI-based application for insurance data processing.
+A comprehensive collection of machine learning, deep learning, and data science projects, including a production-ready FastAPI application for insurance data processing.
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 codebase/
@@ -27,117 +27,119 @@ codebase/
 └── README.md
 ```
 
-### Jupyter Notebooks (Extra/)
+### Jupyter Notebooks
 
 #### Machine Learning & Neural Networks
 
-- **3.6_logreg-part3-practice.ipynb** - Logistic regression practice exercises (Part 3)
-- **4.3-mlp-pytorch-part2-xor-practice.ipynb** - Multi-layer perceptron (MLP) implementation in PyTorch for XOR problem (Part 2)
-- **9 (mlp_mnist).ipynb** - MLP neural network trained on MNIST dataset
-- **Titanic.ipynb** - Titanic dataset analysis and survival prediction
+- **3.6_logreg-part3-practice.ipynb** - Logistic regression implementation and analysis
+- **4.3-mlp-pytorch-part2-xor-practice.ipynb** - Multi-layer perceptron implementation in PyTorch
+- **9 (mlp_mnist).ipynb** - Neural network trained on MNIST digit classification
+- **Titanic.ipynb** - Survival prediction analysis using the Titanic dataset
 
 #### Specialized Projects
 
-- **Swin Transformer-Based Pneumonia Diagnosis Using RSNA Dataset.ipynb** - Deep learning project using Swin Transformer architecture for medical image classification
-- **Profiling.ipynb** - Performance profiling and optimization notebook
+- **Swin Transformer-Based Pneumonia Diagnosis Using RSNA Dataset.ipynb** - Medical image classification using Swin Transformer architecture
+- **Profiling.ipynb** - Performance profiling and optimization analysis
 
 ### FastAPI Application
 
 Located in the `FastAPI/` directory:
 
-- **main.py** - FastAPI application entry point for insurance data processing
-- **insurance.csv** - Insurance dataset
-- **patients.json** - Sample patient data
+The `FastAPI/` directory contains a production-ready application:
+
+- **main.py** - Application entry point with RESTful endpoints
+- **insurance.csv** - Insurance industry
 
 ### Datasets
 
 Located in the `datasets/` directory:
 
 - **placement.csv** - Campus placement data
+  The `datasets/` directory includes:
+- **placement.csv** - Campus recruitment and placement records
 - **Teen_Mental_Health_Dataset.csv** - Mental health survey data
-- **train.csv** - Training dataset
-
-## 🔧 Technologies & Libraries
-
+- **train.csv** - Training dataset for model developmen
 - **Deep Learning**: PyTorch
 - **Web Framework**: FastAPI
-- **Data Processing**: Pandas, NumPy
-- **Machine Learning**: Scikit-learn
-- **Medical Imaging**: Vision Transformers (Swin Transformer)
-- **Notebooks**: Jupyter
+- \*Technology Stack
 
-## 📊 Project Categories
+| Component        | Technology                             |
+| ---------------- | -------------------------------------- |
+| Deep Learning    | PyTorch                                |
+| Web Framework    | FastAPI                                |
+| Data Processing  | Pandas, NumPy                          |
+| Machine Learning | Scikit-learn                           |
+| Medical Imaging  | Vision Transformers (Swin Transformer) |
+| Notebooks        | Jupyter                                |
+
+## Project Categories
 
 ### 1. Educational Projects
 
-- Logistic regression exercises
-- MLP/XOR problem implementation
+- Logistic regression implementation
+- Multi-layer perceptron for XOR problem
 - MNIST digit classification
 - Performance profiling and optimization
 
 ### 2. Application Development
 
-- FastAPI insurance data API
-- RESTful endpoints for data processing
+- RESTful API for insurance data management
+- Production-ready FastAPI application
+- Data processing endpoints
 
-### 3. Research & Analysis Projects
+### 3. Research & Analysis
 
-- Pneumonia diagnosis using Swin Transformers
-- Titanic dataset analysis
+- Medical image classification with Swin Transformers
+- Survival prediction analysis (Titanic dataset)
 - Mental health data analysis
 - Campus placement analysis
 
-## 🚀 Getting Started
+## Getting Started
 
-### FastAPI Setup
+### FastAPI Application
 
 ```bash
 cd FastAPI
 python main.py
 ```
 
-## 📝 Notes
+The application will be available at `http://localhost:8000`.
 
-- **advanced/**, **beginner/**, and **intermediate/** directories are available for organizing future projects by difficulty level
-- All datasets are stored in the `datasets/` directory for easy access
-- Jupyter notebooks can be run directly in Jupyter Lab or Jupyter Notebook environments
-
-### Jupyter Notebooks
+### Running Jupyter Notebooks
 
 ```bash
-# Ensure Jupyter is installed
 jupyter notebook
-
-# Open any .ipynb file to run
 ```
 
-## 📝 Dataset Descriptions
+Then select any `.ipynb` file from the `Extra/` directory to run interactively.
 
-- **Titanic Dataset**: Passenger survival prediction
-- **RSNA Dataset**: Pneumonia X-ray images for medical diagnosis
-- **Teen Mental Health Dataset**: Survey responses on mental health
-- **Placement Dataset**: Campus recruitment and placement data
-- **Insurance Dataset**: Insurance customer and claims data
+## Dataset Overview
 
-## 🎯 Project Highlights
+| Dataset            | Purpose              | Format   |
+| ------------------ | -------------------- | -------- |
+| Titanic            | Survival prediction  | CSV      |
+| Teen Mental Health | Survey analysis      | CSV      |
+| Placement          | Recruitment analysis | CSV      |
+| Insurance          | Risk assessment      | CSV/JSON |
 
-- **Advanced Deep Learning**: Swin Transformer architecture for medical imaging
-- **RESTful API**: FastAPI application for data management
-- **Academic Research**: Full IEEE format research paper on plagiarism detection
-- **Machine Learning Fundamentals**: Core ML algorithms and neural networks
-- **Data Analysis**: Multiple datasets with analysis and visualization
+## Project Structure
 
-## 📚 Notes
+- **Extra/** - Collection of machine learning and deep learning notebooks
+- **FastAPI/** - Production API application
+- **datasets/** - Curated datasets for analysis and modeling
+- **advanced/**, **beginner/**, **intermediate/** - Placeholder directories for future projects by skill level
 
-- All notebooks are interactive and can be run cell-by-cell
-- The FastAPI application requires the virtual environment in `FastAPI/myenv/`
-- Datasets are included in the repository for reproducibility
-- The plagiarism detection project includes both Jupyter notebooks and formal academic documentation
+## Requirements
 
-## 🤝 Contributing
+- Python 3.8+
+- PyTorch
+- FastAPI
+- Pandas & NumPy
+- Jupyter Notebook
 
-This repository contains educational, research, and project materials. Feel free to extend, modify, or improve any of the projects.
+## Usage Notes
 
----
-
-**Last Updated**: April 2026
+- All notebooks support interactive execution with cell-by-cell evaluation
+- Datasets are self-contained within the repository for full reproducibility
+- The FastAPI application is designed for development and demonstration purposes
+- Directory structure supports future expansion with skill-level categorization
