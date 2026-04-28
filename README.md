@@ -4,101 +4,106 @@ This repository contains a collection of machine learning, deep learning, and da
 
 ## 📁 Repository Structure
 
-### Jupyter Notebooks
+```
+codebase/
+├── Extra/                          # Jupyter Notebooks & Projects
+│   ├── 3.6_logreg-part3-practice.ipynb
+│   ├── 4.3-mlp-pytorch-part2-xor-practice.ipynb
+│   ├── 9 (mlp_mnist).ipynb
+│   ├── Profiling.ipynb
+│   ├── Swin Transformer-Based Pneumonia Diagnosis Using RSNA Dataset.ipynb
+│   └── Titanic.ipynb
+├── FastAPI/                        # FastAPI Application
+│   ├── main.py
+│   ├── insurance.csv
+│   └── patients.json
+├── datasets/                       # Data Files
+│   ├── placement.csv
+│   ├── Teen_Mental_Health_Dataset.csv
+│   └── train.csv
+├── advanced/                       # Advanced Projects (placeholder)
+├── beginner/                       # Beginner Projects (placeholder)
+├── intermediate/                   # Intermediate Projects (placeholder)
+└── README.md
+```
+
+### Jupyter Notebooks (Extra/)
 
 #### Machine Learning & Neural Networks
+
 - **3.6_logreg-part3-practice.ipynb** - Logistic regression practice exercises (Part 3)
 - **4.3-mlp-pytorch-part2-xor-practice.ipynb** - Multi-layer perceptron (MLP) implementation in PyTorch for XOR problem (Part 2)
 - **9 (mlp_mnist).ipynb** - MLP neural network trained on MNIST dataset
 - **Titanic.ipynb** - Titanic dataset analysis and survival prediction
 
 #### Specialized Projects
+
 - **Swin Transformer-Based Pneumonia Diagnosis Using RSNA Dataset.ipynb** - Deep learning project using Swin Transformer architecture for medical image classification
 - **Profiling.ipynb** - Performance profiling and optimization notebook
-- **test.ipynb** - Testing and experimentation notebook
 
 ### FastAPI Application
 
 Located in the `FastAPI/` directory:
-- **main.py** - FastAPI application entry point
-- **insurance.csv** - Insurance dataset for the application
+
+- **main.py** - FastAPI application entry point for insurance data processing
+- **insurance.csv** - Insurance dataset
 - **patients.json** - Sample patient data
-- **myenv/** - Python virtual environment with dependencies installed
-  - FastAPI, Pydantic, Starlette, and other required packages
-
-### Plagiarism Detection System
-
-Located in the `Plagiarism Detection System/` directory:
-- **plagiarism_detection.ipynb** - Main plagiarism detection implementation
-- **ai.ipynb** - AI-related analysis and research
-- **create_presentation.py** - Script to generate presentation materials
-- **plagiarism_detection_report.txt** - Detailed report on plagiarism detection
-- **trending_ai_papers.csv** - Dataset of trending AI research papers
-
-#### IEEE Report
-- Located in `IEEE_Report/` subdirectory
-- **main.tex** - Main LaTeX document
-- **references.bib** - Bibliography file
-- **sections/** - Individual LaTeX sections:
-  - introduction.tex
-  - problem_statement.tex
-  - related_work.tex
-  - proposed_methodology.tex
-  - methodology.tex
-  - experimental_setup.tex
-  - implementation.tex
-  - results.tex
-  - discussion.tex
-  - conclusion.tex
-  - conclusion_updated.tex
-  - future_work.tex
-  - dataset_description.tex
 
 ### Datasets
 
 Located in the `datasets/` directory:
+
 - **placement.csv** - Campus placement data
 - **Teen_Mental_Health_Dataset.csv** - Mental health survey data
-- **train.csv** - Training dataset (format depends on specific project)
+- **train.csv** - Training dataset
 
 ## 🔧 Technologies & Libraries
 
 - **Deep Learning**: PyTorch
 - **Web Framework**: FastAPI
 - **Data Processing**: Pandas, NumPy
-- **Machine Learning**: Scikit-learn (assumed)
+- **Machine Learning**: Scikit-learn
 - **Medical Imaging**: Vision Transformers (Swin Transformer)
-- **Documentation**: LaTeX, Jupyter Notebooks
+- **Notebooks**: Jupyter
 
 ## 📊 Project Categories
 
 ### 1. Educational Projects
+
 - Logistic regression exercises
 - MLP/XOR problem implementation
 - MNIST digit classification
+- Performance profiling and optimization
 
 ### 2. Application Development
+
 - FastAPI insurance data API
-- RESTful endpoints for patient data
+- RESTful endpoints for data processing
 
-### 3. Research Projects
+### 3. Research & Analysis Projects
+
 - Pneumonia diagnosis using Swin Transformers
-- Plagiarism detection system
-- AI paper analysis
-
-### 4. Documentation
-- IEEE format research paper with comprehensive sections
+- Titanic dataset analysis
+- Mental health data analysis
+- Campus placement analysis
 
 ## 🚀 Getting Started
 
 ### FastAPI Setup
+
 ```bash
 cd FastAPI
-source myenv/bin/activate
 python main.py
 ```
 
+## 📝 Notes
+
+- **advanced/**, **beginner/**, and **intermediate/** directories are available for organizing future projects by difficulty level
+- All datasets are stored in the `datasets/` directory for easy access
+- Jupyter notebooks can be run directly in Jupyter Lab or Jupyter Notebook environments
+
 ### Jupyter Notebooks
+
 ```bash
 # Ensure Jupyter is installed
 jupyter notebook
