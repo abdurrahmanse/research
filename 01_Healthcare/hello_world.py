@@ -16,7 +16,7 @@ def main():
     print("  - experiments/: Experiment configs and logs")
     print("  - reports/    : Final reports and findings")
     print("\nTip: Remember HIPAA compliance and data privacy!")
-    print("=" * 60)
+    print("=" * 70)
 
 if __name__ == "__main__":
     main()
